@@ -1,5 +1,5 @@
 import { buildQuery, buildMutation, uploadFile, setBaseUrl, getBaseUrl } from './request'
-import type { {{> operation_partial operations=operations includeInternal=false includeResponseData=true}} } from './models'
+import type { {{> operation_partial operations=operations includeInternal=false includeInject=false includeResponseData=true}} } from './models'
 
 setBaseUrl('{{baseURL}}')
 
@@ -32,26 +32,20 @@ function upload(serverName: string, filePath: string, fileName: string) {
 }
 export default {
   query: {
-{{#each operations}}
-    {{#if (isAllTrue isQuery (invertBool isInternal))}}
+  {{#each (filterOperations operations 'isQuery,!isInternal' true)}}
     {{name}}: buildQuery<{{name}}Response{{#if hasInput}} ,{{name}}Input{{/if}}>('/operations/{{path}}'),
-    {{/if}}
-{{/each}}
+  {{/each}}
   },
 
   liveQuery: {
-  {{#each operations}}
-      {{#if (isAllTrue isQuery isLiveQuery (invertBool isInternal))}}
-      {{name}}: buildLiveQuery<{{name}}Response{{#if hasInput}} ,{{name}}Input{{/if}}>('/operations/{{path}}'),
-      {{/if}}
+  {{#each (filterOperations operations 'isQuery,isLiveQuery,!isInternal' true)}}
+    {{name}}: buildLiveQuery<{{name}}Response{{#if hasInput}} ,{{name}}Input{{/if}}>('/operations/{{path}}'),
   {{/each}}
   },
 
   mutation: {
-  {{#each operations}}
-      {{#if (isAllTrue isMutation (invertBool isInternal))}}
-      {{name}}: buildMutation<{{name}}Response{{#if hasInput}} ,{{name}}Input{{/if}}>('/operations/{{path}}'),
-      {{/if}}
+  {{#each (filterOperations operations 'isMutation,!isInternal' true)}}
+    {{name}}: buildMutation<{{name}}Response{{#if hasInput}} ,{{name}}Input{{/if}}>('/operations/{{path}}'),
   {{/each}}
   },
   upload,
